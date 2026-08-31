@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth JWT - Autenticação</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🔐 Projeto de autenticação de usuário com JWT</h1>
+            <p>Sistema de Autenticação com JWT</p>
+        </header>
+
+        <!-- User Info (Após login) -->
+        <div id="userInfo" class="user-info hidden">
+            <div class="user-card">
+                <h2>Bem-vindo!</h2>
+                <p id="userName">Usuário: <strong></strong></p>
+                <p id="userEmail">Email: <strong></strong></p>
+                <div class="user-card-buttons">
+                    <button id="logoutBtn" class="btn btn-logout">Sair</button>
+                    <button id="activityBtn" class="btn btn-primary">📊 Atividades</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Navegação -->
+        <div class="tabs">
+            <button class="tab-btn" data-tab="login">Login</button>
+            <button class="tab-btn" data-tab="register">Registrar</button>
+            <button class="tab-btn" data-tab="profile">Meu Perfil</button>
+        </div>
+
+        <!-- TAB 1: LOGIN -->
+        <div id="loginTab" class="tab-content active">
+            <form id="loginForm" class="form">
+                <h2>Fazer Login</h2>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        name="email" 
+                        placeholder="seu@email.com" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Senha:</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        name="password" 
+                        placeholder="Digite sua senha" 
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary">Entrar</button>
+                <div id="loginMessage" class="message"></div>
+            </form>
+        </div>
+
+        <!-- TAB 2: REGISTRAR -->
+        <div id="registerTab" class="tab-content">
+            <form id="registerForm" class="form">
+                <h2>Criar Nova Conta</h2>
+                
+                <div class="form-group">
+                    <label for="registerName">Nome Completo:</label>
+                    <input 
+                        type="text" 
+                        id="registerName" 
+                        name="name" 
+                        placeholder="João Silva" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input 
+                        type="email" 
+                        id="registerEmail" 
+                        name="email" 
+                        placeholder="seu@email.com" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Senha:</label>
+                    <input 
+                        type="password" 
+                        id="registerPassword" 
+                        name="password" 
+                        placeholder="Mínimo 6 caracteres" 
+                        required
+                    >
+                    <small>Mínimo de 6 caracteres</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirmar Senha:</label>
+                    <input 
+                        type="password" 
+                        id="registerConfirmPassword" 
+                        name="confirmpassword" 
+                        placeholder="Confirme sua senha" 
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary">Registrar</button>
+                <div id="registerMessage" class="message"></div>
+            </form>
+        </div>
+
+        <!-- TAB 3: MEU PERFIL -->
+        <div id="profileTab" class="tab-content">
+            <div id="profileContent" class="profile-section">
+                <h2>Meu Perfil</h2>
+                <p class="info-text">Faça login para visualizar seu perfil</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Projeto Auth JWT | GitHub Copilot</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atividades - Auth JWT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📊 Atividades</h1>
+            <p>Histórico de Atividades do Usuário</p>
+        </header>
+
+        <!-- User Info -->
+        <div id="userInfo" class="user-info hidden">
+            <div class="user-card">
+                <h2>Bem-vindo!</h2>
+                <p id="userName">Usuário: <strong></strong></p>
+                <p id="userEmail">Email: <strong></strong></p>
+                <div class="user-card-buttons">
+                    <button id="backBtn" class="btn btn-primary">← Voltar</button>
+                    <button id="logoutBtn" class="btn btn-logout">Sair</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo de Atividades -->
+        <div class="activity-container">
+            <div class="activity-card">
+                <h2>📋 Histórico de Atividades</h2>
+                <div id="activityList" class="activity-list">
+                    <p class="info-text">Carregando atividades...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Projeto Auth JWT | GitHub Copilot</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="activity.js"></script>
+</body>
+</html>
