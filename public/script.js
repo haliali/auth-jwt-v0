@@ -261,6 +261,7 @@ function checkUserStatus() {
             DOM.profileContent.innerHTML = '';
         }
     }
+
 }
 
 /* ============ REDIRECIONAR PARA ATIVIDADES ============ */
@@ -272,7 +273,7 @@ function goToActivity() {
         return;
     }
     
-    window.location.href = 'activity.html';
+    window.location.href = '/private/activity.html';
 }
 
 /* ============ FUNÇÕES AUXILIARES ============ */

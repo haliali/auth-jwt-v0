@@ -1,5 +1,6 @@
 /* ============ IMPORTS ============ */
 require("dotenv").config();
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -15,8 +16,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir arquivos estáticos (frontend)
-app.use(express.static('public'));
+// Servir arquivos estáticos (frontend) utilizando a pasta views
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Armazenar secrets em variáveis para evitar múltiplas leituras
 const SECRET = process.env.SECRET;
@@ -31,14 +32,15 @@ function checkToken(req, res, next) {
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-        return res.status(401).json({msg: "Acesso negado!"});
+        return res.status(401).json({ msg: "Acesso negado!" });
     }
 
     try {
-        jwt.verify(token, SECRET);
+        const decoded = jwt.verify(token, SECRET);
+        req.user = decoded; // Item 3: Anexa os dados decodificados do usuário na requisição
         next();
     } catch(err) {
-        res.status(400).json({msg: "Token inválido!"});
+        return res.status(401).json({ msg: "Token inválido ou expirado!" });
     }
 }
 
@@ -53,35 +55,35 @@ function validatePassword(password) {
 
 /* ============ ROUTES ============ */
 
-// Open Route
-app.get('/', (req, res) => {
-    res.status(200).json({msg: "Bem-vindo a nossa API"});
+// Open Route (alterado para /api para liberar a raiz "/" para o index.html da pasta public)
+app.get('/api', (req, res) => {
+    res.status(200).json({ msg: "Bem-vindo a nossa API" });
 });
 
 // Register User
-app.post('/auth/register', async (req, res) => {
+app.post('/auth/register', async (req, res, next) => {
     try {
-        const {name, email, password, confirmpassword} = req.body;
+        const { name, email, password, confirmpassword } = req.body;
 
         // Validations
         if (!name) {
-            return res.status(422).json({msg: "O nome é obrigatório!"});
+            return res.status(422).json({ msg: "O nome é obrigatório!" });
         }
         if (!validateEmail(email)) {
-            return res.status(422).json({msg: "Email inválido!"});
+            return res.status(422).json({ msg: "Email inválido!" });
         }
         if (!validatePassword(password)) {
-            return res.status(422).json({msg: "A senha deve ter no mínimo 6 caracteres!"});
+            return res.status(422).json({ msg: "A senha deve ter no mínimo 6 caracteres!" });
         }
         if (password !== confirmpassword) {
-            return res.status(422).json({msg: "As senhas não conferem!"});
+            return res.status(422).json({ msg: "As senhas não conferem!" });
         }
 
         // Check if user already exists
-        const userExists = await User.findOne({email});
+        const userExists = await User.findOne({ email });
 
         if (userExists) {
-            return res.status(422).json({msg: "Usuário com e-mail já cadastrado!"});
+            return res.status(422).json({ msg: "Usuário com e-mail já cadastrado!" });
         }
 
         // Create password hash
@@ -96,70 +98,85 @@ app.post('/auth/register', async (req, res) => {
         });
 
         await user.save();
-        res.status(201).json({msg: "Usuário criado com sucesso!"});
+        res.status(201).json({ msg: "Usuário criado com sucesso!" });
 
     } catch(err) {
-        console.error(err);
-        res.status(500).json({msg: "Erro ao criar usuário!"});
+        next(err);
     }
 });
 
 // Login User
-app.post('/auth/user', async (req, res) => {
+app.post('/auth/user', async (req, res, next) => {
     try {
-        const {email, password} = req.body;
+        const { email, password } = req.body;
 
         // Validations
         if (!validateEmail(email)) {
-            return res.status(422).json({msg: "Email inválido!"});
+            return res.status(422).json({ msg: "Email inválido!" });
         }
         if (!password) {
-            return res.status(422).json({msg: "A senha é obrigatória!"});
+            return res.status(422).json({ msg: "A senha é obrigatória!" });
         }
 
         // Check if user exists
-        const user = await User.findOne({email});
+        const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({msg: "Usuário não encontrado!"});
+            return res.status(404).json({ msg: "Usuário não encontrado!" });
         }
 
         // Check if password match
         const checkPassword = await bcrypt.compare(password, user.password);
 
         if (!checkPassword) {
-            return res.status(422).json({msg: "Senha inválida!"});
+            return res.status(422).json({ msg: "Senha inválida!" });
         }
 
-        // Generate token
-        const token = jwt.sign({id: user._id}, SECRET);
+        // Item 2: Define tempo de expiração do JWT (ex: 24 horas)
+        const token = jwt.sign({ id: user._id }, SECRET, { expiresIn: '1d' });
 
-        res.status(200).json({msg: "Autenticação realizada com sucesso!", token});
+        res.status(200).json({ 
+            msg: "Autenticação realizada com sucesso!", 
+            token, 
+            userId: user._id 
+        });
 
     } catch(err) {
-        console.error(err);
-        res.status(500).json({msg: "Erro interno do servidor, tente novamente mais tarde!"});
+        next(err);
     }
 });
 
 // Private Route
-app.get('/user/:id', checkToken, async (req, res) => {
+app.get('/user/:id', checkToken, async (req, res, next) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
+
+        // Item 1: Validação do formato do ObjectId do MongoDB
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ msg: "ID de usuário inválido!" });
+        }
 
         // Check if user exists
         const user = await User.findById(id, '-password');
 
         if (!user) {
-            return res.status(404).json({msg: "Usuário não encontrado!"});
+            return res.status(404).json({ msg: "Usuário não encontrado!" });
         }
 
-        res.status(200).json({user});
+        res.status(200).json({ user });
 
     } catch(err) {
-        console.error(err);
-        res.status(500).json({msg: "Erro ao buscar usuário!"});
+        next(err);
     }
+});
+
+/* ============ ERROR HANDLER ============ */
+// Item 4: Middleware centralizado de tratamento de erros
+app.use((err, req, res, next) => {
+    console.error("Erro interno:", err);
+    res.status(err.status || 500).json({
+        msg: "Erro interno do servidor, tente novamente mais tarde!"
+    });
 });
 
 /* ============ DATABASE & SERVER ============ */
